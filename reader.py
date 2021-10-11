@@ -3,6 +3,7 @@ import random
 import threading
 import time
 from serial import Serial
+from math import sin
 
 
 class SerialReader:
@@ -38,9 +39,9 @@ class SerialReader:
     def _daemon_routine(self, buf):
         while self.ser.is_open and self.daemon_running:
             line = self.ser.readline()
-            if '\n' not in line or not self.capture:
+            if b'\n' not in line or not self.capture:
                 continue
-            value = int(line)
+            value = float(line)
             buf.append(value)
         logging.info('Shutting down serial reader')
         return
@@ -79,7 +80,8 @@ class FakeReader:
         while self.daemon_running:
             if not self.capture:
                 continue
-            value = random.randint(100, 900)
+            x = len(buf) / 1000 * 3.14
+            value = sin(x) * 500 + 500
             buf.append(value)
             time.sleep(0.001)
         logging.info('Shutting down serial reader')
