@@ -46,8 +46,13 @@ class SerialReader:
             line = self.ser.readline()
             if b'\n' not in line or not self.capture:
                 continue
-            value = float(line)
-            buf.append(value)
+            try:
+                value = int(line)
+                if value <= 100:
+                    logging.warning(f'Read bad: "{line}"')
+                buf.append(value)
+            except Exception:
+                logging.warning(f'Ignored value "{line}"')
         logging.info('Shutting down serial reader')
         return
 
