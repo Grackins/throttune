@@ -1,5 +1,5 @@
+import json
 import logging
-import random
 import threading
 import time
 from serial import Serial
@@ -16,6 +16,10 @@ class SerialReader:
 
     def write(self, msg, end='\n'):
         self.ser.write(f'{msg}{end}'.encode())
+
+    def save(self, name):
+        with open(f'./data/{name}', 'w') as f:
+            json.dump(self.buf, f)
 
     def start_daemon(self, buf):
         self.daemon_running = True
@@ -37,6 +41,7 @@ class SerialReader:
         self.thread.join()
 
     def _daemon_routine(self, buf):
+        self.buf = buf
         while self.ser.is_open and self.daemon_running:
             line = self.ser.readline()
             if b'\n' not in line or not self.capture:
@@ -56,6 +61,10 @@ class FakeReader:
 
     def write(self, msg, end='\n'):
         pass
+
+    def save(self, name):
+        with open(f'./data/{name}', 'w') as f:
+            json.dump(self.buf, f)
 
     def start_daemon(self, buf):
         self.daemon_running = True
